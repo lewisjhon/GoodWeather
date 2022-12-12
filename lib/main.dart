@@ -1,17 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:weather/api/k_weather.dart';
 import 'package:weather/helper/public_function.dart';
 import 'package:weather/model/weather_model.dart';
 import 'package:weather/widget/listitem_by_day.dart';
 import 'package:weather/widget/listitem_by_time.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() => runApp(const MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class _MyAppState extends State<MyApp> {
+  late Future<ShortWeather> futureShortWeather;
+
+  @override
+  void initState() {
+    super.initState();
+    futureShortWeather = fetchWeather();
+  }
 
   @override
   Widget build(BuildContext context) {
