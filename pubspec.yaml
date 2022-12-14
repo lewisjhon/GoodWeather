@@ -35,6 +35,11 @@ dependencies:
   sizer: 2.0.15
   http: 0.13.5
   logger: 1.1.0
+  rxdart: 0.27.7
+  flutter_bloc: ^7.0.0
+  equatable: ^2.0.0
+  path_provider:
+  
 
 
   # The following adds the Cupertino Icons font to your application.
