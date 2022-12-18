@@ -1,7 +1,13 @@
 class WeatherViewModel {
   final String region;
+  final String weatherImage;
+  final int minTemperature;
+  final int maxTemperature;
+  final int curTemperature;
 
-  WeatherViewModel({required this.region});
+  WeatherViewModel(this.weatherImage, this.minTemperature, this.maxTemperature,
+      this.curTemperature,
+      {required this.region});
 
   // String _title = '';
   // int _degree = 0;

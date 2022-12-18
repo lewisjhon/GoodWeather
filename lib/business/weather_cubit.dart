@@ -13,7 +13,7 @@ class WeatherCubit extends Cubit<WeatherState> {
       emit(Loading());
 
       final resp = await repository.fetchWeather();
-      var tmp = WeatherViewModel(region: 'aaaa');
+      //var tmp = WeatherViewModel(region: 'aaaa');
 
       // 여기서 데이터 전환 이루어져야 함. Mapper()
 
