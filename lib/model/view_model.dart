@@ -1,20 +1,50 @@
 class WeatherViewModel {
   final String region;
   final String weatherImage;
+  final String weatherDesc;
   final int minTemperature;
   final int maxTemperature;
   final int curTemperature;
 
-  WeatherViewModel(this.weatherImage, this.minTemperature, this.maxTemperature,
-      this.curTemperature,
-      {required this.region});
+  final List<WeatherByTimeViewModel> itemByTime;
+  final List<WeatherByDayViewModel> itemByDay;
 
-  // String _title = '';
-  // int _degree = 0;
+  WeatherViewModel({
+    required this.region,
+    required this.weatherImage,
+    required this.weatherDesc,
+    required this.minTemperature,
+    required this.maxTemperature,
+    required this.curTemperature,
+    required this.itemByTime,
+    required this.itemByDay,
+  });
+}
 
-  // String get Title => _title;
-  // int get Degree => _degree;
+class WeatherByTimeViewModel {
+  final String title;
+  final String weatherImage;
+  final int curTemperature;
 
-  // set Title(String value) => _title = value;
-  // set Degree(int value) => _degree = value;
+  WeatherByTimeViewModel({
+    required this.title,
+    required this.weatherImage,
+    required this.curTemperature,
+  });
+}
+
+class WeatherByDayViewModel {
+  final String title;
+  final String weatherImage;
+  final String weatherDesc;
+  final int minTemperature;
+  final int maxTemperature;
+
+  WeatherByDayViewModel({
+    required this.title,
+    required this.weatherImage,
+    required this.weatherDesc,
+    required this.minTemperature,
+    required this.maxTemperature,
+  });
 }

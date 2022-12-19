@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
+import 'package:weather/business/mapper.dart';
 import 'package:weather/model/view_model.dart';
 import 'package:weather/repository/api/k_weather.dart';
 import 'package:weather/business/weather_state.dart';
@@ -13,11 +15,15 @@ class WeatherCubit extends Cubit<WeatherState> {
       emit(Loading());
 
       final resp = await repository.fetchWeather();
-      //var tmp = WeatherViewModel(region: 'aaaa');
 
-      // 여기서 데이터 전환 이루어져야 함. Mapper()
-
-      emit(Loaded(weather: [resp]));
+      if (resp.header.resultCode == "00") {
+        var model = map(resp);
+        emit(Loaded(weather: [model]));
+      } else {
+        var logg = Logger();
+        logg.d(resp.header.resultMsg);
+        emit(Error(message: resp.header.resultMsg));
+      }
     } catch (e) {
       emit(Error(message: e.toString()));
     }

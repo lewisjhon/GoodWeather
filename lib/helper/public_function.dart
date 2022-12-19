@@ -1,3 +1,9 @@
+var now = DateTime.now();
+
+String getYYYYMMDD() {
+  return "${now.year}${now.month}${now.day}";
+}
+
 String getWeatherIcon(String iconCode) {
   switch (iconCode) {
     case '01d':

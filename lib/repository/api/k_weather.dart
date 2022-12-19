@@ -1,6 +1,8 @@
 //기상청 api key
 import 'dart:convert';
 import 'package:logger/logger.dart';
+import 'package:weather/business/weather_state.dart';
+import 'package:weather/helper/public_function.dart';
 import 'package:weather/model/domain_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -12,15 +14,39 @@ const String urlLong = ""; // 4일 ~ 10일
 
 class WeatherRepository {
   Future<Response> fetchWeather() async {
-    final response = await http.get(Uri.parse(
-        '$urlShort?serviceKey=$apikey&numOfRows=10&pageNo=1&base_date=20221218&base_time=1430&nx=55&ny=127&dataType=JSON'));
+    DateTime now = DateTime.now();
 
-    var logger = Logger();
-    logger.d(
-        '$urlShort?serviceKey=$apikey&numOfRows=10&pageNo=1&base_date=20221212&base_time=1730&nx=55&ny=127&dataType=JSON');
+    //매일 데이터 갱신 기준 시간 + 10분 (일일 8회)
+    List<DateTime> baseTimeList = [
+      DateTime(now.year, now.month, now.day, 2, 20),
+      DateTime(now.year, now.month, now.day, 5, 20),
+      DateTime(now.year, now.month, now.day, 8, 20),
+      DateTime(now.year, now.month, now.day, 11, 20),
+      DateTime(now.year, now.month, now.day, 14, 20),
+      DateTime(now.year, now.month, now.day, 17, 20),
+      DateTime(now.year, now.month, now.day, 20, 20),
+      DateTime(now.year, now.month, now.day, 23, 20),
+    ];
+
+    var baseTime = baseTimeList.first;
+
+    var filterdList =
+        baseTimeList.where((element) => element.compareTo(now) == -1);
+    if (filterdList.isNotEmpty) {
+      baseTime = filterdList.last;
+    }
+
+    //var url =
+    //    '$urlShort?serviceKey=$apikey&numOfRows=1000&pageNo=1&base_date=${getYYYYMMDD()}&base_time=${baseTime.hour}${baseTime.minute}&nx=60&ny=127&dataType=JSON';
+    var url =
+        '$urlShort?serviceKey=$apikey&numOfRows=1000&pageNo=1&base_date=${getYYYYMMDD()}&base_time=0200&nx=60&ny=127&dataType=JSON';
+
+    final response = await http.get(Uri.parse(url));
+
+    Logger().d(url);
 
     if (response.statusCode == 200) {
-      return Future<Response>.delayed(Duration(seconds: 2), () {
+      return Future<Response>.delayed(Duration(seconds: 0), () {
         return Response.fromJson(jsonDecode(response.body)['response']);
       });
     } else {

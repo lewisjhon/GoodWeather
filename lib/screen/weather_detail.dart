@@ -7,6 +7,7 @@ import 'package:weather/business/weather_cubit.dart';
 import 'package:weather/business/weather_state.dart';
 import 'package:weather/helper/public_function.dart';
 import 'package:weather/model/domain_model.dart';
+import 'package:weather/model/view_model.dart';
 import 'package:weather/widget/listitem_by_day.dart';
 import 'package:weather/widget/listitem_by_time.dart';
 
@@ -51,8 +52,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                   child: CircularProgressIndicator()); //android style
             } else if (state is Loaded) {
               final item = state.weather;
-              var logger = Logger();
-              logger.d((item[0] as Response).header.resultMsg);
+              final WeatherViewModel viewModel = item[0] as WeatherViewModel;
 
               return Container(
                 decoration: BoxDecoration(
@@ -88,7 +88,11 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                                   width: 100,
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [Text('최저'), Text('2°')],
+                                    children: [
+                                      Text('최저'),
+                                      Text(
+                                          '${viewModel.minTemperature.toString()}°')
+                                    ],
                                   )),
                               Container(
                                 alignment: Alignment.center,
@@ -102,7 +106,11 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                                   width: 100,
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [Text('최고'), Text('12°')],
+                                    children: [
+                                      Text('최고'),
+                                      Text(
+                                          '${viewModel.maxTemperature.toString()}°')
+                                    ],
                                   )),
                             ],
                           )

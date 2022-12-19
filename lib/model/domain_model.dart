@@ -1,3 +1,5 @@
+import 'package:logger/logger.dart';
+
 class Response {
   final Header header;
   final Body body;
@@ -48,6 +50,16 @@ class Body {
   });
 
   factory Body.fromJson(Map<String, dynamic> json) {
+    if (json.isEmpty) {
+      return const Body(
+        numOfRows: 0,
+        pageNo: 0,
+        totalCount: 0,
+        dataType: "",
+        items: [],
+      );
+    }
+
     var list = json['items']['item'] as List;
     List<Item> itemList = list.map((i) => Item.fromJson(i)).toList();
     return Body(
