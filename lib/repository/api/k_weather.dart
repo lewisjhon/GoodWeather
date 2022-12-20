@@ -8,9 +8,15 @@ import 'package:http/http.dart' as http;
 
 const String apikey =
     "9cb09qJk83PkSy0hGYFExVqmeOPKjcBtudHao38zMJYmprd7zrPWhiXJySnLU1bFUzStqL9dbd3ADRVjUFYO4w%3D%3D";
-const String urlShort =
-    "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"; // 오늘 ~ 3일
-const String urlLong = ""; // 4일 ~ 10일
+const String baseUrlShort =
+    "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0";
+const String baseUrlLong = "https://apis.data.go.kr/1360000/MidFcstInfoService";
+const String urlShortUltra = "$baseUrlShort/getUltraSrtFcst"; // 현재 ~ 6시간
+const String urlShort = "$baseUrlShort/getVilageFcst"; // 현재 ~ 3일
+const String urlLong = "$baseUrlLong/getMidTa"; // 4일 ~ 10일
+
+//long sample
+//https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=9cb09qJk83PkSy0hGYFExVqmeOPKjcBtudHao38zMJYmprd7zrPWhiXJySnLU1bFUzStqL9dbd3ADRVjUFYO4w%3D%3D&pageNo=1&numOfRows=1000&dataType=JSON&regId=11B10101&tmFc=202212200600
 
 class WeatherRepository {
   Future<Response> fetchWeather() async {

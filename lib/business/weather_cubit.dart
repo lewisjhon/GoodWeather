@@ -17,7 +17,7 @@ class WeatherCubit extends Cubit<WeatherState> {
       final resp = await repository.fetchWeather();
 
       if (resp.header.resultCode == "00") {
-        var model = map(resp);
+        var model = mapResponse(resp);
         emit(Loaded(weather: [model]));
       } else {
         var logg = Logger();

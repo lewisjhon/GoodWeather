@@ -21,7 +21,7 @@ class ListitemByDay extends StatelessWidget {
       ),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
         Container(
-          child: const Text('10도'),
+          child: const Text('월'),
         ),
         Container(
           child: SvgPicture.asset(
@@ -30,7 +30,7 @@ class ListitemByDay extends StatelessWidget {
           ),
         ),
         Container(
-          child: const Text('10도'),
+          child: const Text('-1°/10°'),
         )
       ]),
     );

@@ -53,6 +53,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
             } else if (state is Loaded) {
               final item = state.weather;
               final WeatherViewModel viewModel = item[0] as WeatherViewModel;
+              viewModel.itemByTime.sort((a, b) => a.title.compareTo(b.title));
 
               return Container(
                 decoration: BoxDecoration(
@@ -97,8 +98,9 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                               Container(
                                 alignment: Alignment.center,
                                 width: 100,
-                                child: const Text('10°',
-                                    style: TextStyle(
+                                child: Text(
+                                    '${viewModel.curTemperature.toString()}°',
+                                    style: const TextStyle(
                                         fontSize: 30,
                                         fontWeight: FontWeight.bold)),
                               ),
@@ -120,7 +122,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                     Flexible(
                       flex: 7,
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(30),
+                        padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
                         child: Column(
                           children: [
                             Container(
@@ -130,16 +132,30 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                                     BorderRadius.all(Radius.circular(20)),
                               ),
                               margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                              padding: const EdgeInsets.all(15),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: [
-                                    for (num i = 1; i < 10; i++)
-                                      ListitemByTime(
-                                          currentTemperture: i.toInt())
-                                  ],
-                                ),
+                              padding:
+                                  const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    '${getToday()} 시간 별 예보',
+                                    style: const TextStyle(
+                                        color: Colors.black54, fontSize: 12),
+                                  ),
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: [
+                                        for (var item in viewModel.itemByTime)
+                                          ListitemByTime(
+                                            currentTemperture:
+                                                item.curTemperature,
+                                            title:
+                                                "${int.parse(item.title.substring(0, 2))}시",
+                                          )
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             Container(
@@ -152,7 +168,11 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                               child: Column(children: [
                                 Container(
                                   height: 20,
-                                  child: const Text('2주간 일기 예보'),
+                                  child: const Text(
+                                    '주간 일기 예보',
+                                    style: TextStyle(
+                                        color: Colors.black54, fontSize: 12),
+                                  ),
                                 ),
                                 for (num i = 1; i < 14; i++)
                                   const ListitemByDay()

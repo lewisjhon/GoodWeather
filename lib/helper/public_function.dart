@@ -1,10 +1,31 @@
 var now = DateTime.now();
 
+String getToday() {
+  return "${now.month}/${now.day}";
+}
+
 String getYYYYMMDD() {
   return "${now.year}${now.month}${now.day}";
 }
 
 String getWeatherIcon(String iconCode) {
+  //3개의 조합으로 계산해보까?
+  //1 : 낮/밤
+  //2 : 맑음/구름많음/흐림
+  //3 : 없음/비/눈/비,눈/소나기
+
+  //아래는 기상청에서 구분해주는 값.
+  //1.맑음
+  //2.구름많음 = cloudy.svg
+  //3.구름많음+비
+  //4.구름많음+눈
+  //5.구름많음+비/눈
+  //6.구름많음+소나기
+  //7.흐림
+  //8.흐림+비
+  //9.흐림+눈
+  //10.흐림+비/눈
+  //11.흐림+소나기
   switch (iconCode) {
     case '01d':
       return 'assets/images/day.svg';
