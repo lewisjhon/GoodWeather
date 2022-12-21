@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:logger/logger.dart';
 import 'package:weather/business/weather_cubit.dart';
@@ -29,6 +30,15 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(
+      localizationsDelegates: const [
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ko', 'KR'),
+      ],
+      locale: const Locale('ko'),
       debugShowCheckedModeBanner: false,
       theme: const CupertinoThemeData(
           brightness: Brightness.light,
@@ -174,8 +184,11 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                                         color: Colors.black54, fontSize: 12),
                                   ),
                                 ),
-                                for (num i = 1; i < 14; i++)
-                                  const ListitemByDay()
+                                for (var item in viewModel.itemByDay)
+                                  ListitemByDay(
+                                      title: item.title,
+                                      min: item.minTemperature,
+                                      max: item.maxTemperature)
                               ]),
                             ),
                           ],

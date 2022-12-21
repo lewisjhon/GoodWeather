@@ -13,13 +13,32 @@ const String baseUrlShort =
 const String baseUrlLong = "https://apis.data.go.kr/1360000/MidFcstInfoService";
 const String urlShortUltra = "$baseUrlShort/getUltraSrtFcst"; // 현재 ~ 6시간
 const String urlShort = "$baseUrlShort/getVilageFcst"; // 현재 ~ 3일
-const String urlLong = "$baseUrlLong/getMidTa"; // 4일 ~ 10일
+
+const String urlLongWeather = "$baseUrlLong/getMidLandFcst"; // 4일 ~ 10일 (구름정보)
+const String urlLongTemperature = "$baseUrlLong/getMidTa"; // 4일 ~ 10일 (온도정보)
 
 //long sample
-//https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=9cb09qJk83PkSy0hGYFExVqmeOPKjcBtudHao38zMJYmprd7zrPWhiXJySnLU1bFUzStqL9dbd3ADRVjUFYO4w%3D%3D&pageNo=1&numOfRows=1000&dataType=JSON&regId=11B10101&tmFc=202212200600
+//https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?regId=11B10101&tmFc=202212200600
 
 class WeatherRepository {
-  Future<Response> fetchWeather() async {
+  Future<ResponseMid> fetchWeatherMid() async {
+    var url =
+        '$urlLongTemperature?serviceKey=$apikey&numOfRows=1000&pageNo=1&dataType=JSON&regId=11B10101&tmFc=202212210600';
+
+    final response = await http.get(Uri.parse(url));
+
+    Logger().d(url);
+
+    if (response.statusCode == 200) {
+      return Future<ResponseMid>.delayed(Duration(seconds: 0), () {
+        return ResponseMid.fromJson(jsonDecode(response.body)['response']);
+      });
+    } else {
+      throw Exception('Failed to load album');
+    }
+  }
+
+  Future<ResponseShort> fetchWeatherShort() async {
     DateTime now = DateTime.now();
 
     //매일 데이터 갱신 기준 시간 + 10분 (일일 8회)
@@ -52,8 +71,8 @@ class WeatherRepository {
     Logger().d(url);
 
     if (response.statusCode == 200) {
-      return Future<Response>.delayed(Duration(seconds: 0), () {
-        return Response.fromJson(jsonDecode(response.body)['response']);
+      return Future<ResponseShort>.delayed(Duration(seconds: 0), () {
+        return ResponseShort.fromJson(jsonDecode(response.body)['response']);
       });
     } else {
       throw Exception('Failed to load album');

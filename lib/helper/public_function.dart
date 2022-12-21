@@ -1,4 +1,13 @@
+import 'dart:js_util';
+import 'package:intl/intl.dart';
+//import 'package:flutter_localizations/flutter_localizations.dart'
+
 var now = DateTime.now();
+
+String getWeekday(int addDay) {
+  var date = DateTime.now().add(Duration(days: addDay));
+  return DateFormat('E', 'ko').format(date);
+}
 
 String getToday() {
   return "${now.month}/${now.day}";

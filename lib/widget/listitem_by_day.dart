@@ -5,7 +5,12 @@ import 'package:weather/helper/public_function.dart';
 import 'package:flutter/material.dart';
 
 class ListitemByDay extends StatelessWidget {
-  const ListitemByDay({super.key});
+  final String title;
+  final int min;
+  final int max;
+
+  const ListitemByDay(
+      {required this.title, required this.min, required this.max, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +26,7 @@ class ListitemByDay extends StatelessWidget {
       ),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
         Container(
-          child: const Text('월'),
+          child: Text(title),
         ),
         Container(
           child: SvgPicture.asset(
@@ -30,7 +35,7 @@ class ListitemByDay extends StatelessWidget {
           ),
         ),
         Container(
-          child: const Text('-1°/10°'),
+          child: Text('$min°/$max°'),
         )
       ]),
     );

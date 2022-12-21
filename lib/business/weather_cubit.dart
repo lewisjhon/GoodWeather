@@ -14,15 +14,16 @@ class WeatherCubit extends Cubit<WeatherState> {
     try {
       emit(Loading());
 
-      final resp = await repository.fetchWeather();
+      final respShort = await repository.fetchWeatherShort();
+      final respMid = await repository.fetchWeatherMid();
 
-      if (resp.header.resultCode == "00") {
-        var model = mapResponse(resp);
+      if (respShort.header.resultCode == "00") {
+        var model = mapResponse(respShort, respMid);
         emit(Loaded(weather: [model]));
       } else {
         var logg = Logger();
-        logg.d(resp.header.resultMsg);
-        emit(Error(message: resp.header.resultMsg));
+        logg.d(respShort.header.resultMsg);
+        emit(Error(message: respShort.header.resultMsg));
       }
     } catch (e) {
       emit(Error(message: e.toString()));
