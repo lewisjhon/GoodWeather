@@ -5,9 +5,13 @@ import 'package:weather/model/view_model.dart';
 class ListitemByTime extends StatelessWidget {
   final int currentTemperture;
   final String title;
+  final String img;
 
   const ListitemByTime(
-      {required this.currentTemperture, required this.title, super.key});
+      {required this.currentTemperture,
+      required this.title,
+      required this.img,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +29,7 @@ class ListitemByTime extends StatelessWidget {
         ),
         Container(
           child: SvgPicture.asset(
-            'assets/images/cloudy_day.svg',
+            img,
             height: 40,
           ),
         ),

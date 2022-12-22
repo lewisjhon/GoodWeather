@@ -23,7 +23,7 @@ const String urlLongTemperature = "$baseUrlLong/getMidTa"; // 4일 ~ 10일 (온�
 class WeatherRepository {
   Future<ResponseMid> fetchWeatherMid() async {
     var url =
-        '$urlLongTemperature?serviceKey=$apikey&numOfRows=1000&pageNo=1&dataType=JSON&regId=11B10101&tmFc=202212210600';
+        '$urlLongTemperature?serviceKey=$apikey&numOfRows=1000&pageNo=1&dataType=JSON&regId=11B10101&tmFc=${getYYYYMMDD()}0600';
 
     final response = await http.get(Uri.parse(url));
 

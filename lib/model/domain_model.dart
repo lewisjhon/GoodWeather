@@ -39,7 +39,7 @@ class BodyShort {
   final int pageNo;
   final int totalCount;
   final String dataType;
-  final List items;
+  final List<ItemShort> items;
 
   const BodyShort({
     required this.numOfRows,
@@ -61,7 +61,7 @@ class BodyShort {
     }
 
     var list = json['items']['item'] as List;
-    List itemList = list.map((i) => ItemShort.fromJson(i)).toList();
+    List<ItemShort> itemList = list.map((i) => ItemShort.fromJson(i)).toList();
 
     return BodyShort(
       numOfRows: json['numOfRows'],
@@ -130,7 +130,7 @@ class BodyMid {
   final int pageNo;
   final int totalCount;
   final String dataType;
-  final List items;
+  final List<ItemMid> items;
 
   const BodyMid({
     required this.numOfRows,
@@ -152,7 +152,7 @@ class BodyMid {
     }
 
     var list = json['items']['item'] as List;
-    List itemList = list.map((i) => ItemMid.fromJson(i)).toList();
+    List<ItemMid> itemList = list.map((i) => ItemMid.fromJson(i)).toList();
 
     return BodyMid(
       numOfRows: json['numOfRows'],

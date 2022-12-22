@@ -2,30 +2,44 @@ import 'dart:js_util';
 import 'package:intl/intl.dart';
 //import 'package:flutter_localizations/flutter_localizations.dart'
 
-var now = DateTime.now();
+DateTime getDateTime({int addDay = 0}) {
+  var now = DateTime.now();
+  if (addDay > 0) {
+    return now.add(Duration(days: addDay));
+  } else {
+    return now;
+  }
+}
 
 String getWeekday(int addDay) {
-  var date = DateTime.now().add(Duration(days: addDay));
-  return DateFormat('E', 'ko').format(date);
+  return DateFormat('E', 'ko').format(getDateTime(addDay: addDay));
 }
 
 String getToday() {
-  return "${now.month}/${now.day}";
+  return "${getDateTime().month}/${getDateTime().day}";
 }
 
-String getYYYYMMDD() {
-  return "${now.year}${now.month}${now.day}";
+String getYYYYMMDD({int addDay = 0}) {
+  return DateFormat("yyyyMMdd").format(getDateTime(addDay: addDay));
 }
 
-String getWeatherIcon(String iconCode) {
+String getYYYYMMDDHHmmSS() {
+  return DateFormat("yyyyMMddHHmmss").format(getDateTime());
+}
+
+String getHH00() {
+  return "${getDateTime().hour.toString().padLeft(2, '0')}00";
+}
+
+String getWeatherIcon(String skyCode, String rainCode) {
   //3개의 조합으로 계산해보까?
   //1 : 낮/밤
-  //2 : 맑음/구름많음/흐림
-  //3 : 없음/비/눈/비,눈/소나기
+  //skyCode : 맑음(1)/구름많음(3)/흐림(4)
+  //rainCode : 없음(0)/비(1)/눈(3)/비,눈(2)/소나기(4) [초단기 경우: 빗방울(5)/빗방울눈날림(6)/눈날림(7)]
 
   //아래는 기상청에서 구분해주는 값.
   //1.맑음
-  //2.구름많음 = cloudy.svg
+  //2.구름많음
   //3.구름많음+비
   //4.구름많음+눈
   //5.구름많음+비/눈
@@ -35,40 +49,24 @@ String getWeatherIcon(String iconCode) {
   //9.흐림+눈
   //10.흐림+비/눈
   //11.흐림+소나기
-  switch (iconCode) {
-    case '01d':
+  var combineCode = "$skyCode$rainCode";
+  switch (combineCode) {
+    case '10':
       return 'assets/images/day.svg';
-
-    case '01n':
-      return 'assets/images/night.svg';
-
-    case '02d':
-      return 'assets/images/cloudy_day.svg';
-
-    case '02n':
-      return 'assets/images/cloudy_night.svg';
-
-    case '03d':
-    case '03n':
-    case '04d':
-    case '04n':
-      return 'assets/images/cloudy.svg';
-
-    case '09d':
-    case '09n':
-    case '10d':
-    case '10n':
+    case '30':
+    case '40':
+      return 'assets/images/cloudy.svg'; //'assets/images/cloudy_day.svg' / 'assets/images/cloudy_night.svg'
+    case '31':
+    case '32':
+    case '34':
+    case '41':
+    case '42':
+    case '44':
       return 'assets/images/rainy.svg';
-
-    case '11d':
-    case '11n':
-      return 'assets/images/thunder.svg';
-
-    case '13d':
-    case '13n':
+    case '33':
+    case '43':
       return 'assets/images/snowy.svg';
-
     default:
-      return 'assets/day.svg';
+      return 'assets/images/cloudy_day.svg';
   }
 }

@@ -88,7 +88,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                           ),
                           Container(
                             child: SvgPicture.asset(
-                              getWeatherIcon('02n'),
+                              viewModel.weatherImage,
                               height: 150,
                             ),
                           ),
@@ -161,6 +161,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                                                 item.curTemperature,
                                             title:
                                                 "${int.parse(item.title.substring(0, 2))}시",
+                                            img: item.weatherImage,
                                           )
                                       ],
                                     ),
@@ -187,6 +188,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                                 for (var item in viewModel.itemByDay)
                                   ListitemByDay(
                                       title: item.title,
+                                      img: item.weatherImage,
                                       min: item.minTemperature,
                                       max: item.maxTemperature)
                               ]),

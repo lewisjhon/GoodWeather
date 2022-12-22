@@ -6,11 +6,16 @@ import 'package:flutter/material.dart';
 
 class ListitemByDay extends StatelessWidget {
   final String title;
+  final String img;
   final int min;
   final int max;
 
   const ListitemByDay(
-      {required this.title, required this.min, required this.max, super.key});
+      {required this.title,
+      required this.img,
+      required this.min,
+      required this.max,
+      super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +35,7 @@ class ListitemByDay extends StatelessWidget {
         ),
         Container(
           child: SvgPicture.asset(
-            getWeatherIcon('01d'),
+            img,
             height: 100,
           ),
         ),
