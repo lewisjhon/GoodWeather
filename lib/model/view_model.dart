@@ -22,12 +22,12 @@ class WeatherViewModel {
 }
 
 class WeatherByTimeViewModel {
-  final String title;
+  final int time;
   final String weatherImage;
   final int curTemperature;
 
   WeatherByTimeViewModel({
-    required this.title,
+    required this.time,
     required this.weatherImage,
     required this.curTemperature,
   });

@@ -33,13 +33,20 @@ WeatherByDayViewModel CreateDayItemFromList(
       maxTemperature: int.parse(tmp.last.fcstValue));
 }
 
-WeatherViewModel mapResponse(ResponseShort resShort, ResponseMid resMid) {
+WeatherByTimeViewModel CreateTimeItem(int time, String img, int temp) {
+  return WeatherByTimeViewModel(
+      curTemperature: temp, time: time, weatherImage: img);
+}
+
+WeatherViewModel mapResponse(
+    ResponseShort resShort, ResponseMid resMid, ResponseMid resMidSky) {
   //category
   //TMP : 온도(°C)
   //SKY : 하늘상태(맑음:1/구름많음:3/흐림:4)
   //PTY : 강수형태(없음:0/비:1/비,눈:2/눈:3/소나기:4)
   //REH : 습도(%)
-  var tmp = resMid.body.items[0] as ItemMid;
+  var tmp = resMid.body.items[0];
+  var tmp2 = resMidSky.body.items[0];
   List<WeatherByDayViewModel> tmpItemByDay = [];
 
   tmpItemByDay.add(CreateDayItemFromList(
@@ -51,25 +58,24 @@ WeatherViewModel mapResponse(ResponseShort resShort, ResponseMid resMid) {
       resShort.body.items, getWeekday(2), getWeatherIcon('0', '1'),
       addDay: 2));
   tmpItemByDay.addAll([
+    CreateDayItem(getWeekday(3), tmp.taMin3, tmp.taMax3,
+        getWeatherIconByText(tmp2.wf3Am)),
+    CreateDayItem(getWeekday(4), tmp.taMin4, tmp.taMax4,
+        getWeatherIconByText(tmp2.wf4Am)),
+    CreateDayItem(getWeekday(5), tmp.taMin5, tmp.taMax5,
+        getWeatherIconByText(tmp2.wf5Am)),
+    CreateDayItem(getWeekday(6), tmp.taMin6, tmp.taMax6,
+        getWeatherIconByText(tmp2.wf6Am)),
+    CreateDayItem(getWeekday(7), tmp.taMin7, tmp.taMax7,
+        getWeatherIconByText(tmp2.wf7Am)),
     CreateDayItem(
-        getWeekday(3), tmp.taMin3, tmp.taMax3, getWeatherIcon('0', '1')),
+        getWeekday(8), tmp.taMin8, tmp.taMax8, getWeatherIconByText(tmp2.wf8)),
     CreateDayItem(
-        getWeekday(4), tmp.taMin4, tmp.taMax4, getWeatherIcon('0', '1')),
-    CreateDayItem(
-        getWeekday(5), tmp.taMin5, tmp.taMax5, getWeatherIcon('0', '1')),
-    CreateDayItem(
-        getWeekday(6), tmp.taMin6, tmp.taMax6, getWeatherIcon('0', '1')),
-    CreateDayItem(
-        getWeekday(7), tmp.taMin7, tmp.taMax7, getWeatherIcon('0', '1')),
-    CreateDayItem(
-        getWeekday(8), tmp.taMin8, tmp.taMax8, getWeatherIcon('0', '1')),
-    CreateDayItem(
-        getWeekday(9), tmp.taMin9, tmp.taMax9, getWeatherIcon('0', '1')),
-    CreateDayItem(
-        getWeekday(10), tmp.taMin10, tmp.taMax10, getWeatherIcon('0', '1')),
+        getWeekday(9), tmp.taMin9, tmp.taMax9, getWeatherIconByText(tmp2.wf9)),
+    CreateDayItem(getWeekday(10), tmp.taMin10, tmp.taMax10,
+        getWeatherIconByText(tmp2.wf10)),
   ]);
 
-  Logger().d('test');
   var todayTmpItems = resShort.body.items
       .where((x) => x.fcstDate == getYYYYMMDD() && x.category == "TMP")
       .toList();
@@ -82,15 +88,54 @@ WeatherViewModel mapResponse(ResponseShort resShort, ResponseMid resMid) {
   var rainCode =
       getShortItemValue(resShort.body.items, 'PTY', getYYYYMMDD(), getHH00());
 
+  List<WeatherByTimeViewModel> tmpItemByTime = [];
+  List<String> timeList = [
+    '0000',
+    '0100',
+    '0200',
+    '0300',
+    '0400',
+    '0500',
+    '0600',
+    '0700',
+    '0800',
+    '0900',
+    '1000',
+    '1100',
+    '1200',
+    '1300',
+    '1400',
+    '1500',
+    '1600',
+    '1700',
+    '1800',
+    '1900',
+    '2000',
+    '2100',
+    '2200',
+    '2300',
+  ];
+
+  for (var time in timeList) {
+    tmpItemByTime.add(CreateTimeItem(
+        int.parse(time.substring(0, 2)),
+        getWeatherIcon(
+            getShortItemValue(resShort.body.items, 'SKY', getYYYYMMDD(), time),
+            getShortItemValue(resShort.body.items, 'PTY', getYYYYMMDD(), time)),
+        int.parse(getShortItemValue(
+            resShort.body.items, 'TMP', getYYYYMMDD(), time))));
+  }
+
   return WeatherViewModel(
-      curTemperature: int.parse(curTemp.first.fcstValue),
-      minTemperature: int.parse(todayTmpItems.first.fcstValue),
-      maxTemperature: int.parse(todayTmpItems.last.fcstValue),
-      region: "서울시",
-      weatherDesc: "",
-      weatherImage: getWeatherIcon(skyCode, rainCode),
-      itemByDay: tmpItemByDay,
-      itemByTime: todayTmpItems.map((e) => mapTimeViewModel(e)).toList());
+    curTemperature: int.parse(curTemp.first.fcstValue),
+    minTemperature: int.parse(todayTmpItems.first.fcstValue),
+    maxTemperature: int.parse(todayTmpItems.last.fcstValue),
+    region: "서울시",
+    weatherDesc: "",
+    weatherImage: getWeatherIcon(skyCode, rainCode),
+    itemByDay: tmpItemByDay,
+    itemByTime: tmpItemByTime,
+  );
 }
 
 String getShortItemValue(
@@ -101,12 +146,4 @@ String getShortItemValue(
       .toList()
       .first
       .fcstValue;
-}
-
-//아래 함수도 못쓰겠네.. 결국 time 항목도 수동으로 생성 해야 할 듯. ㅠㅠ
-WeatherByTimeViewModel mapTimeViewModel(ItemShort model) {
-  return WeatherByTimeViewModel(
-      curTemperature: int.parse(model.fcstValue),
-      title: model.fcstTime,
-      weatherImage: getWeatherIcon('0', '1'));
 }

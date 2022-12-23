@@ -61,9 +61,8 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
               return const Center(
                   child: CircularProgressIndicator()); //android style
             } else if (state is Loaded) {
-              final item = state.weather;
-              final WeatherViewModel viewModel = item[0] as WeatherViewModel;
-              viewModel.itemByTime.sort((a, b) => a.title.compareTo(b.title));
+              final WeatherViewModel viewModel =
+                  state.weather[0] as WeatherViewModel;
 
               return Container(
                 decoration: BoxDecoration(
@@ -159,8 +158,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                                           ListitemByTime(
                                             currentTemperture:
                                                 item.curTemperature,
-                                            title:
-                                                "${int.parse(item.title.substring(0, 2))}시",
+                                            title: "${item.time}시",
                                             img: item.weatherImage,
                                           )
                                       ],

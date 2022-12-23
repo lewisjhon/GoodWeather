@@ -10,29 +10,42 @@ const String apikey =
     "9cb09qJk83PkSy0hGYFExVqmeOPKjcBtudHao38zMJYmprd7zrPWhiXJySnLU1bFUzStqL9dbd3ADRVjUFYO4w%3D%3D";
 const String baseUrlShort =
     "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0";
-const String baseUrlLong = "https://apis.data.go.kr/1360000/MidFcstInfoService";
-const String urlShortUltra = "$baseUrlShort/getUltraSrtFcst"; // 현재 ~ 6시간
-const String urlShort = "$baseUrlShort/getVilageFcst"; // 현재 ~ 3일
+const String baseUrlMid = "https://apis.data.go.kr/1360000/MidFcstInfoService";
 
-const String urlLongWeather = "$baseUrlLong/getMidLandFcst"; // 4일 ~ 10일 (구름정보)
-const String urlLongTemperature = "$baseUrlLong/getMidTa"; // 4일 ~ 10일 (온도정보)
+//const String urlShortUltra = "$baseUrlShort/getUltraSrtFcst"; // 현재 ~ 6시간
+const String urlShort = "$baseUrlShort/getVilageFcst"; // 현재 ~ 3일
+const String urlMidSky = "$baseUrlMid/getMidLandFcst"; // 4일 ~ 10일 (구름정보)
+const String urlMidTemp = "$baseUrlMid/getMidTa"; // 4일 ~ 10일 (온도정보)
 
 //long sample
 //https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?regId=11B10101&tmFc=202212200600
 
 class WeatherRepository {
-  Future<ResponseMid> fetchWeatherMid() async {
+  Future<ResponseMid> fetchWeatherMidTemp() async {
     var url =
-        '$urlLongTemperature?serviceKey=$apikey&numOfRows=1000&pageNo=1&dataType=JSON&regId=11B10101&tmFc=${getYYYYMMDD()}0600';
+        '$urlMidTemp?serviceKey=$apikey&numOfRows=1000&pageNo=1&dataType=JSON&regId=11B10101&tmFc=${getYYYYMMDD()}0600';
 
     final response = await http.get(Uri.parse(url));
 
     Logger().d(url);
 
     if (response.statusCode == 200) {
-      return Future<ResponseMid>.delayed(Duration(seconds: 0), () {
-        return ResponseMid.fromJson(jsonDecode(response.body)['response']);
-      });
+      return ResponseMid.fromJson(jsonDecode(response.body)['response']);
+    } else {
+      throw Exception('Failed to load album');
+    }
+  }
+
+  Future<ResponseMid> fetchWeatherMidSky() async {
+    var url =
+        '$urlMidSky?serviceKey=$apikey&numOfRows=1000&pageNo=1&dataType=JSON&regId=11B00000&tmFc=${getYYYYMMDD()}0600';
+
+    final response = await http.get(Uri.parse(url));
+
+    Logger().d(url);
+
+    if (response.statusCode == 200) {
+      return ResponseMid.fromJson(jsonDecode(response.body)['response']);
     } else {
       throw Exception('Failed to load album');
     }
@@ -64,16 +77,17 @@ class WeatherRepository {
     //var url =
     //    '$urlShort?serviceKey=$apikey&numOfRows=1000&pageNo=1&base_date=${getYYYYMMDD()}&base_time=${baseTime.hour}${baseTime.minute}&nx=60&ny=127&dataType=JSON';
     var url =
-        '$urlShort?serviceKey=$apikey&numOfRows=1000&pageNo=1&base_date=${getYYYYMMDD()}&base_time=0200&nx=60&ny=127&dataType=JSON';
+        '$urlShort?serviceKey=$apikey&numOfRows=1000&pageNo=1&base_date=${getYYYYMMDD(addDay: -1)}&base_time=2300&nx=60&ny=127&dataType=JSON';
 
     final response = await http.get(Uri.parse(url));
 
     Logger().d(url);
 
     if (response.statusCode == 200) {
-      return Future<ResponseShort>.delayed(Duration(seconds: 0), () {
-        return ResponseShort.fromJson(jsonDecode(response.body)['response']);
-      });
+      return ResponseShort.fromJson(jsonDecode(response.body)['response']);
+      // return Future<ResponseShort>.delayed(Duration(seconds: 0), () {
+      //   return ResponseShort.fromJson(jsonDecode(response.body)['response']);
+      // });
     } else {
       throw Exception('Failed to load album');
     }

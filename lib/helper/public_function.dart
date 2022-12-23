@@ -1,14 +1,8 @@
 import 'dart:js_util';
 import 'package:intl/intl.dart';
-//import 'package:flutter_localizations/flutter_localizations.dart'
 
 DateTime getDateTime({int addDay = 0}) {
-  var now = DateTime.now();
-  if (addDay > 0) {
-    return now.add(Duration(days: addDay));
-  } else {
-    return now;
-  }
+  return DateTime.now().add(Duration(days: addDay));
 }
 
 String getWeekday(int addDay) {
@@ -66,6 +60,21 @@ String getWeatherIcon(String skyCode, String rainCode) {
     case '33':
     case '43':
       return 'assets/images/snowy.svg';
+    default:
+      return 'assets/images/cloudy_day.svg';
+  }
+}
+
+String getWeatherIconByText(String text) {
+  //skyCode : 맑음(1)/구름많음(3)/흐림(4)
+
+  switch (text) {
+    case '맑음':
+      return 'assets/images/day.svg';
+    case '구름많음':
+      return 'assets/images/cloudy_day.svg';
+    case '흐림':
+      return 'assets/images/cloudy.svg';
     default:
       return 'assets/images/cloudy_day.svg';
   }
