@@ -54,18 +54,24 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
             if (state is Empty) {
               return Container();
             } else if (state is Error) {
-              return Container(
-                child: Text(state.message),
-              );
+              return Text(state.message);
             } else if (state is Loading) {
               //return const Center(child: CupertinoActivityIndicator()); // iphone style
-              return const Center(
-                  child: CircularProgressIndicator()); //android style
+              return const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Center(
+                      child: CircularProgressIndicator()),
+                  SizedBox(height: 20),
+                  Text('날시 정보를 불러오는 중 입니다.')
+                ],
+              ); //android style
             } else if (state is Loaded) {
               final WeatherViewModel viewModel =
                   state.weather[0] as WeatherViewModel;
 
               return Container(
+                padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                     image: DecorationImage(
                         colorFilter: ColorFilter.mode(
@@ -95,9 +101,10 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                     SliverAppBar(
                       backgroundColor: Colors.transparent,
                       elevation: 0,
-                      pinned: true,
+                      stretch: false,
+                      pinned: false,
                       bottom: const PreferredSize(
-                          child: SizedBox(),
+                          child: SizedBox(height: 16,),
                           preferredSize: Size.fromHeight(100.0)),
                       flexibleSpace: Container(
                         decoration: const BoxDecoration(
@@ -133,97 +140,21 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
                     SliverList(
                         delegate: SliverChildBuilderDelegate(
                       (context, index) {
+
                         return Padding(
-                            padding: EdgeInsets.only(
-                                left: 10, bottom: 20, right: 10),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20)),
-                                color: Colors.black54,
-                              ),
-                              height: 50,
-                              width: MediaQuery.of(context).size.width,
-                            ));
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: ListitemByDay(
+                                title: viewModel.itemByDay[index].title,
+                                img : viewModel.itemByDay[index].weatherImage,
+                                min : viewModel.itemByDay[index].minTemperature,
+                                max : viewModel.itemByDay[index].maxTemperature
+                            )
+                        );
                       },
-                      childCount: 20,
+                      childCount: viewModel.itemByDay.length,
                     ))
                   ],
                 ),
-                // child: Column(
-                //   children: [
-                //     TodayWidget(
-                //       img: viewModel.weatherImage,
-                //       title: viewModel.region,
-                //       now: viewModel.curTemperature,
-                //       min: viewModel.minTemperature,
-                //       max: viewModel.maxTemperature,
-                //     ),
-                //     Container(
-                //       padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
-                //       child: Column(
-                //         children: [
-                //           Container(
-                //             decoration: const BoxDecoration(
-                //               color: Colors.black12,
-                //               borderRadius:
-                //                   BorderRadius.all(Radius.circular(20)),
-                //             ),
-                //             margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                //             padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-                //             child: Column(
-                //               children: [
-                //                 Text(
-                //                   '${getToday()} 시간 별 예보',
-                //                   style: const TextStyle(
-                //                       color: Colors.black54, fontSize: 12),
-                //                 ),
-                //                 SingleChildScrollView(
-                //                   scrollDirection: Axis.horizontal,
-                //                   child: Row(
-                //                     children: [
-                //                       for (var item in viewModel.itemByTime)
-                //                         ListitemByTime(
-                //                           currentTemperture:
-                //                               item.curTemperature,
-                //                           title: "${item.time}시",
-                //                           img: item.weatherImage,
-                //                         )
-                //                     ],
-                //                   ),
-                //                 ),
-                //               ],
-                //             ),
-                //           ),
-                //           Container(
-                //             decoration: const BoxDecoration(
-                //               color: Colors.black12,
-                //               borderRadius:
-                //                   BorderRadius.all(Radius.circular(20)),
-                //             ),
-                //             padding: const EdgeInsets.all(15),
-                //             child: Column(children: [
-                //               Container(
-                //                 height: 20,
-                //                 child: const Text(
-                //                   '주간 일기 예보',
-                //                   style: TextStyle(
-                //                       color: Colors.black54, fontSize: 12),
-                //                 ),
-                //               ),
-                //               for (var item in viewModel.itemByDay)
-                //                 ListitemByDay(
-                //                     title: item.title,
-                //                     img: item.weatherImage,
-                //                     min: item.minTemperature,
-                //                     max: item.maxTemperature)
-                //             ]),
-                //           ),
-                //         ],
-                //       ),
-                //     )
-                //   ],
-                // ),
               );
             }
             return Container();
