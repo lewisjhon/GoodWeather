@@ -1,4 +1,3 @@
-import 'dart:js_util';
 import 'package:intl/intl.dart';
 
 DateTime getDateTime({int addDay = 0}) {
@@ -7,6 +6,11 @@ DateTime getDateTime({int addDay = 0}) {
 
 String getWeekday(int addDay) {
   return DateFormat('E', 'ko').format(getDateTime(addDay: addDay));
+}
+
+String getWeekdayWithDate(int addDay) {
+  var today = getDateTime(addDay: addDay);
+  return DateFormat('E', 'ko').format(getDateTime(addDay: addDay)) + " ${today.month}/${today.day}";
 }
 
 String getToday() {

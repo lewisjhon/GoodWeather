@@ -52,27 +52,27 @@ WeatherViewModel mapResponse(
   tmpItemByDay.add(CreateDayItemFromList(
       resShort.body.items, "오늘", getWeatherIcon('0', '1')));
   tmpItemByDay.add(CreateDayItemFromList(
-      resShort.body.items, getWeekday(1), getWeatherIcon('0', '1'),
+      resShort.body.items, getWeekdayWithDate(1), getWeatherIcon('0', '1'),
       addDay: 1));
   tmpItemByDay.add(CreateDayItemFromList(
-      resShort.body.items, getWeekday(2), getWeatherIcon('0', '1'),
+      resShort.body.items, getWeekdayWithDate(2), getWeatherIcon('0', '1'),
       addDay: 2));
   tmpItemByDay.addAll([
-    CreateDayItem(getWeekday(3), tmp.taMin3, tmp.taMax3,
+    CreateDayItem(getWeekdayWithDate(3), tmp.taMin3, tmp.taMax3,
         getWeatherIconByText(tmp2.wf3Am)),
-    CreateDayItem(getWeekday(4), tmp.taMin4, tmp.taMax4,
+    CreateDayItem(getWeekdayWithDate(4), tmp.taMin4, tmp.taMax4,
         getWeatherIconByText(tmp2.wf4Am)),
-    CreateDayItem(getWeekday(5), tmp.taMin5, tmp.taMax5,
+    CreateDayItem(getWeekdayWithDate(5), tmp.taMin5, tmp.taMax5,
         getWeatherIconByText(tmp2.wf5Am)),
-    CreateDayItem(getWeekday(6), tmp.taMin6, tmp.taMax6,
+    CreateDayItem(getWeekdayWithDate(6), tmp.taMin6, tmp.taMax6,
         getWeatherIconByText(tmp2.wf6Am)),
-    CreateDayItem(getWeekday(7), tmp.taMin7, tmp.taMax7,
+    CreateDayItem(getWeekdayWithDate(7), tmp.taMin7, tmp.taMax7,
         getWeatherIconByText(tmp2.wf7Am)),
     CreateDayItem(
-        getWeekday(8), tmp.taMin8, tmp.taMax8, getWeatherIconByText(tmp2.wf8)),
+        getWeekdayWithDate(8), tmp.taMin8, tmp.taMax8, getWeatherIconByText(tmp2.wf8)),
     CreateDayItem(
-        getWeekday(9), tmp.taMin9, tmp.taMax9, getWeatherIconByText(tmp2.wf9)),
-    CreateDayItem(getWeekday(10), tmp.taMin10, tmp.taMax10,
+        getWeekdayWithDate(9), tmp.taMin9, tmp.taMax9, getWeatherIconByText(tmp2.wf9)),
+    CreateDayItem(getWeekdayWithDate(10), tmp.taMin10, tmp.taMax10,
         getWeatherIconByText(tmp2.wf10)),
   ]);
 
