@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:location/location.dart';
 import 'package:logger/logger.dart';
 import 'package:weather/business/weather_cubit.dart';
 import 'package:weather/business/weather_state.dart';
@@ -38,6 +39,35 @@ class WeatherDetailWidget extends StatefulWidget {
 class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsBindingObserver{
 
   BannerAd? banner;
+  late LocationData _locationData;
+
+  void getLocation() async {
+    Location location = new Location();
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+
+
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+
+    _permissionGranted = await location.hasPermission();
+    //권한 확인
+    if (_permissionGranted == PermissionStatus.denied) {
+      //권한이 없으면 권한 요청.
+      _permissionGranted = await location.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+
+    _locationData = await location.getLocation();
+    Logger().d(_locationData);
+  }
 
   void fetchData() {
     BlocProvider.of<WeatherCubit>(context).getWeather();
@@ -48,6 +78,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
     WidgetsBinding.instance!.addObserver(this);
     super.initState();
     fetchData();
+    getLocation();
 
     banner = BannerAd(
       size: AdSize.fluid,
@@ -174,7 +205,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                               child: Column(
                                 children: [
                                   Text(
-                                    '${getToday()} 시간 별 예보',
+                                    '${_locationData.latitude}/${_locationData.longitude}',//'${getToday()} 시간 별 예보',
                                     style: const TextStyle(
                                         color: Colors.black54, fontSize: 12),
                                   ),
