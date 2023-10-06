@@ -174,7 +174,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                               child: Column(
                                 children: [
                                   Text(
-                                    '${UNIT_ID[Platform.isIOS ? 'ios' : 'android']!}', //'${getToday()} 시간 별 예보',
+                                    '${getToday()} 시간 별 예보',
                                     style: const TextStyle(
                                         color: Colors.black54, fontSize: 12),
                                   ),
@@ -196,17 +196,11 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                             ),
                           ),
                           SliverAppBar(
-                            toolbarHeight: 30,
-                            flexibleSpace: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.black12,
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
-                              ),
-                              child: AdWidget(
+                              toolbarHeight: 30,
+                              backgroundColor: Colors.transparent,
+                              flexibleSpace: AdWidget(
                                 ad: banner!,
                               ),
-                            )
-
                           ),
                           SliverList(
                               delegate: SliverChildBuilderDelegate(
