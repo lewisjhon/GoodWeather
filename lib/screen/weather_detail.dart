@@ -20,7 +20,7 @@ import 'package:weather/widget/today_widget.dart';
 const Map<String, String> UNIT_ID = kReleaseMode
     ? {
   'ios': 'ca-app-pub-4667051183270672/7132450833',
-  'android': '[YOUR ANDROID AD UNIT ID]',
+  'android': 'ca-app-pub-4667051183270672/7855425437',
 }
     : {
   'ios': 'ca-app-pub-3940256099942544/2934735716',
@@ -50,7 +50,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
     fetchData();
 
     banner = BannerAd(
-      size: AdSize.banner,
+      size: AdSize.fluid,
       adUnitId: UNIT_ID[Platform.isIOS ? 'ios' : 'android']!,
       listener: BannerAdListener(
         onAdFailedToLoad: (Ad ad, LoadAdError error) {},
@@ -159,13 +159,11 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                             ),
                           ),
                           SliverAppBar(
+                            toolbarHeight: 127,
                             backgroundColor: Colors.transparent,
                             elevation: 0,
                             stretch: false,
                             pinned: false,
-                            bottom: const PreferredSize(
-                                child: SizedBox(height: 1,),
-                                preferredSize: Size.fromHeight(40.0)),
                             flexibleSpace: Container(
                               decoration: const BoxDecoration(
                                 color: Colors.black12,
@@ -176,7 +174,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                               child: Column(
                                 children: [
                                   Text(
-                                    '${getToday()} 시간 별 예보',
+                                    '${UNIT_ID[Platform.isIOS ? 'ios' : 'android']!}', //'${getToday()} 시간 별 예보',
                                     style: const TextStyle(
                                         color: Colors.black54, fontSize: 12),
                                   ),
@@ -198,17 +196,23 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                             ),
                           ),
                           SliverAppBar(
+                            toolbarHeight: 30,
                             flexibleSpace: Container(
+                              decoration: const BoxDecoration(
+                                color: Colors.black12,
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                              ),
                               child: AdWidget(
                                 ad: banner!,
                               ),
-                            ),
+                            )
+
                           ),
                           SliverList(
                               delegate: SliverChildBuilderDelegate(
                             (context, index) {
                               return Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.only(bottom: 7),
                                   child: ListitemByDay(
                                       title: viewModel.itemByDay[index].title,
                                       img : viewModel.itemByDay[index].weatherImage,
