@@ -130,7 +130,7 @@ WeatherViewModel mapResponse(
     curTemperature: int.parse(curTemp.first.fcstValue),
     minTemperature: int.parse(todayTmpItems.first.fcstValue),
     maxTemperature: int.parse(todayTmpItems.last.fcstValue),
-    region: "서울시",
+    region: "서울시 구로구",
     weatherDesc: "오늘 날씨는 전반적으로 포근하고 건조하겠습니다.",
     weatherImage: getWeatherIcon(skyCode, rainCode),
     itemByDay: tmpItemByDay,

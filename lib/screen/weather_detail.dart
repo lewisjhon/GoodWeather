@@ -17,6 +17,7 @@ import 'package:weather/model/view_model.dart';
 import 'package:weather/widget/listitem_by_day.dart';
 import 'package:weather/widget/listitem_by_time.dart';
 import 'package:weather/widget/today_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const Map<String, String> UNIT_ID = kReleaseMode
     ? {
@@ -40,6 +41,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
 
   BannerAd? banner;
   late LocationData _locationData;
+
 
   void getLocation() async {
     Location location = new Location();
@@ -69,15 +71,20 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
     Logger().d(_locationData);
   }
 
-  void fetchData() {
-    BlocProvider.of<WeatherCubit>(context).getWeather();
+  void fetchData(bool isForce) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final int? lastReqHour = prefs.getInt('lastReqHour');
+
+    if (lastReqHour != getDateTime().hour || isForce) {
+      BlocProvider.of<WeatherCubit>(context).getWeather();
+    }
   }
 
   @override
   void initState() {
     WidgetsBinding.instance!.addObserver(this);
     super.initState();
-    fetchData();
+    fetchData(true);
     getLocation();
 
     banner = BannerAd(
@@ -98,10 +105,10 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.resumed:
-        fetchData();
+        fetchData(false);
         print("app in resumed");
         break;
       case AppLifecycleState.inactive:
@@ -138,7 +145,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
       home: CupertinoPageScaffold(
         child: RefreshIndicator(
           onRefresh: () async {
-            fetchData();
+            fetchData(true);
           },
           child: BlocBuilder<WeatherCubit, WeatherState>(
             builder: (_, state) {
@@ -205,7 +212,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                               child: Column(
                                 children: [
                                   Text(
-                                    '${_locationData.latitude}/${_locationData.longitude}',//'${getToday()} 시간 별 예보',
+                                    '${getToday()} 시간 별 예보',
                                     style: const TextStyle(
                                         color: Colors.black54, fontSize: 12),
                                   ),
@@ -232,6 +239,22 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                               flexibleSpace: AdWidget(
                                 ad: banner!,
                               ),
+                          ),
+                          SliverAppBar(
+                            pinned: true,
+                            toolbarHeight: 10,
+                            backgroundColor: Colors.amber,
+                            flexibleSpace: Container(
+                              margin: const EdgeInsets.all(0),
+                              padding: const EdgeInsets.all(0),
+                              child: const Row(
+                                children: [
+                                  Text("날짜"),
+                                  Text("최고"),
+                                  Text("최저"),
+                                ],
+                              ),
+                            )
                           ),
                           SliverList(
                               delegate: SliverChildBuilderDelegate(

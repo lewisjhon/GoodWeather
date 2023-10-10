@@ -41,6 +41,7 @@ dependencies:
   flutter_bloc: ^7.0.0
   equatable: ^2.0.0
   location: ^4.2.0
+  shared_preferences: ^2.2.1
 
 
 

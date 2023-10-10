@@ -24,8 +24,8 @@ class TodayWidget extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-            child: const Text(
-              '서울시',
+            child: Text(
+              title,
               style: TextStyle(fontSize: 30),
             ),
           ),

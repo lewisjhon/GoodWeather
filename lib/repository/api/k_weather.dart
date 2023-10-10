@@ -5,6 +5,7 @@ import 'package:weather/business/weather_state.dart';
 import 'package:weather/helper/public_function.dart';
 import 'package:weather/model/domain_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 const String apikey =
     "9cb09qJk83PkSy0hGYFExVqmeOPKjcBtudHao38zMJYmprd7zrPWhiXJySnLU1bFUzStqL9dbd3ADRVjUFYO4w%3D%3D";
@@ -21,7 +22,11 @@ const String urlMidTemp = "$baseUrlMid/getMidTa"; // 4일 ~ 10일 (온도정보)
 //https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?regId=11B10101&tmFc=202212200600
 
 class WeatherRepository {
+
   Future<ResponseMid> fetchWeatherMidTemp() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('lastReqHour', getDateTime().hour);
+
     var url =
         '$urlMidTemp?serviceKey=$apikey&numOfRows=1000&pageNo=1&dataType=JSON&regId=11B10101&tmFc=${getYYYYMMDD()}0600';
 
@@ -77,7 +82,7 @@ class WeatherRepository {
     //var url =
     //    '$urlShort?serviceKey=$apikey&numOfRows=1000&pageNo=1&base_date=${getYYYYMMDD()}&base_time=${baseTime.hour}${baseTime.minute}&nx=60&ny=127&dataType=JSON';
     var url =
-        '$urlShort?serviceKey=$apikey&numOfRows=1000&pageNo=1&base_date=${getYYYYMMDD(addDay: -1)}&base_time=2300&nx=60&ny=127&dataType=JSON';
+        '$urlShort?serviceKey=$apikey&numOfRows=1000&pageNo=1&base_date=${getYYYYMMDD(addDay: -1)}&base_time=2300&nx=58&ny=125&dataType=JSON';
 
     final response = await http.get(Uri.parse(url));
 
