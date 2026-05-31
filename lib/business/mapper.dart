@@ -1,13 +1,9 @@
-import 'dart:convert';
-import 'package:flutter/cupertino.dart';
-import 'package:logger/logger.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:weather/helper/public_function.dart';
 import 'package:weather/model/domain_model.dart';
 import 'package:weather/model/region.dart';
 import 'package:weather/model/view_model.dart';
 
-WeatherByDayViewModel CreateDayItem(String title, int min, int max, String img,
+WeatherByDayViewModel createDayItem(String title, int min, int max, String img,
     {String desc = ''}) {
   return WeatherByDayViewModel(
       title: title,
@@ -17,7 +13,7 @@ WeatherByDayViewModel CreateDayItem(String title, int min, int max, String img,
       maxTemperature: max);
 }
 
-WeatherByDayViewModel CreateDayItemFromList(
+WeatherByDayViewModel createDayItemFromList(
     List<ItemShort> list, String title, String img,
     {String desc = '', int addDay = 0}) {
   var tmp = list
@@ -34,7 +30,7 @@ WeatherByDayViewModel CreateDayItemFromList(
       maxTemperature: int.parse(tmp.last.fcstValue));
 }
 
-WeatherByTimeViewModel CreateTimeItem(int time, String img, int temp) {
+WeatherByTimeViewModel createTimeItem(int time, String img, int temp) {
   return WeatherByTimeViewModel(
       curTemperature: temp, time: time, weatherImage: img);
 }
@@ -51,30 +47,30 @@ WeatherViewModel mapResponse(
   var tmp2 = resMidSky.body.items[0];
   List<WeatherByDayViewModel> tmpItemByDay = [];
 
-  tmpItemByDay.add(CreateDayItemFromList(
+  tmpItemByDay.add(createDayItemFromList(
       resShort.body.items, "오늘", getWeatherIcon('0', '1')));
-  tmpItemByDay.add(CreateDayItemFromList(
+  tmpItemByDay.add(createDayItemFromList(
       resShort.body.items, getWeekdayWithDate(1), getWeatherIcon('0', '1'),
       addDay: 1));
-  tmpItemByDay.add(CreateDayItemFromList(
+  tmpItemByDay.add(createDayItemFromList(
       resShort.body.items, getWeekdayWithDate(2), getWeatherIcon('0', '1'),
       addDay: 2));
   tmpItemByDay.addAll([
-    CreateDayItem(getWeekdayWithDate(3), tmp.taMin3, tmp.taMax3,
+    createDayItem(getWeekdayWithDate(3), tmp.taMin3, tmp.taMax3,
         getWeatherIconByText(tmp2.wf3Am)),
-    CreateDayItem(getWeekdayWithDate(4), tmp.taMin4, tmp.taMax4,
+    createDayItem(getWeekdayWithDate(4), tmp.taMin4, tmp.taMax4,
         getWeatherIconByText(tmp2.wf4Am)),
-    CreateDayItem(getWeekdayWithDate(5), tmp.taMin5, tmp.taMax5,
+    createDayItem(getWeekdayWithDate(5), tmp.taMin5, tmp.taMax5,
         getWeatherIconByText(tmp2.wf5Am)),
-    CreateDayItem(getWeekdayWithDate(6), tmp.taMin6, tmp.taMax6,
+    createDayItem(getWeekdayWithDate(6), tmp.taMin6, tmp.taMax6,
         getWeatherIconByText(tmp2.wf6Am)),
-    CreateDayItem(getWeekdayWithDate(7), tmp.taMin7, tmp.taMax7,
+    createDayItem(getWeekdayWithDate(7), tmp.taMin7, tmp.taMax7,
         getWeatherIconByText(tmp2.wf7Am)),
-    CreateDayItem(
+    createDayItem(
         getWeekdayWithDate(8), tmp.taMin8, tmp.taMax8, getWeatherIconByText(tmp2.wf8)),
-    CreateDayItem(
+    createDayItem(
         getWeekdayWithDate(9), tmp.taMin9, tmp.taMax9, getWeatherIconByText(tmp2.wf9)),
-    CreateDayItem(getWeekdayWithDate(10), tmp.taMin10, tmp.taMax10,
+    createDayItem(getWeekdayWithDate(10), tmp.taMin10, tmp.taMax10,
         getWeatherIconByText(tmp2.wf10)),
   ]);
 
@@ -126,7 +122,7 @@ WeatherViewModel mapResponse(
   ];
 
   for (var time in timeList) {
-    tmpItemByTime.add(CreateTimeItem(
+    tmpItemByTime.add(createTimeItem(
         int.parse(time.substring(0, 2)),
         getWeatherIcon(
             getShortItemValue(resShort.body.items, 'SKY', getYYYYMMDD(), time),

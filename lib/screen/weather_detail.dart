@@ -16,7 +16,7 @@ import 'package:weather/widget/listitem_by_time.dart';
 import 'package:weather/widget/outfit_widget.dart';
 import 'package:weather/widget/today_widget.dart';
 
-const Map<String, String> UNIT_ID = kReleaseMode
+const Map<String, String> unitId = kReleaseMode
     ? {
         'ios': 'ca-app-pub-4667051183270672/7132450833',
         'android': 'ca-app-pub-4667051183270672/7855425437',
@@ -47,7 +47,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> {
 
     banner = BannerAd(
       size: AdSize.fluid,
-      adUnitId: UNIT_ID[Platform.isIOS ? 'ios' : 'android']!,
+      adUnitId: unitId[Platform.isIOS ? 'ios' : 'android']!,
       listener: BannerAdListener(
         onAdFailedToLoad: (Ad ad, LoadAdError error) {},
         onAdLoaded: (_) {},

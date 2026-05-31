@@ -1,4 +1,3 @@
-import 'package:logger/logger.dart';
 
 class Header {
   final String resultCode;

@@ -10,7 +10,7 @@ String getWeekday(int addDay) {
 
 String getWeekdayWithDate(int addDay) {
   var today = getDateTime(addDay: addDay);
-  return DateFormat('E', 'ko').format(getDateTime(addDay: addDay)) + " ${today.month}/${today.day}";
+  return "${DateFormat('E', 'ko').format(getDateTime(addDay: addDay))} ${today.month}/${today.day}";
 }
 
 String getToday() {

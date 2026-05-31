@@ -155,12 +155,12 @@ All date/time formatting lives in `lib/helper/public_function.dart` (`getYYYYMMD
   `CircularProgressIndicator`) are mixed in — `GlobalMaterialLocalizations` is registered so
   these work. Each location page is built from stacked `SliverAppBar`s in a `CustomScrollView`.
 - **Custom font**: "ONE Mobile Title" (TTFs in `assets/fonts/`) is registered in pubspec.
-- **Naming**: factory helpers in mapper.dart use PascalCase (`CreateDayItem`) — non-standard
-  for Dart but consistent within the file; follow the local pattern when editing it.
+- **Linting**: `flutter analyze` is clean (0 errors/warnings/infos) — keep it that way. The
+  analyzer runs against Flutter 3.7.12 / Dart 2.19.6 (the version installed at `/opt/flutter`).
 
 ## AdMob
 
-Ad unit IDs live in `lib/screen/weather_detail.dart` (`UNIT_ID` map) and switch on
+Ad unit IDs live in `lib/screen/weather_detail.dart` (`unitId` map) and switch on
 `kReleaseMode`: Google's public test IDs in debug, real IDs in release. The Android AdMob
 **app** ID is in `android/app/src/main/AndroidManifest.xml` (`com.google.android.gms.ads.APPLICATION_ID`).
 `MobileAds.instance.initialize()` is called in `main()`. Each location page loads its own
