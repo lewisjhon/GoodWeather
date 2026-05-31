@@ -11,11 +11,13 @@ import 'package:location/location.dart';
 import 'package:logger/logger.dart';
 import 'package:weather/business/weather_cubit.dart';
 import 'package:weather/business/weather_state.dart';
+import 'package:weather/helper/app_theme.dart';
 import 'package:weather/helper/public_function.dart';
 import 'package:weather/model/domain_model.dart';
 import 'package:weather/model/view_model.dart';
 import 'package:weather/widget/listitem_by_day.dart';
 import 'package:weather/widget/listitem_by_time.dart';
+import 'package:weather/widget/outfit_widget.dart';
 import 'package:weather/widget/today_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -152,7 +154,28 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
               if (state is Empty) {
                 return Container();
               } else if (state is Error) {
-                return Text(state.message);
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('☁️', style: TextStyle(fontSize: 48)),
+                      const SizedBox(height: 12),
+                      const Text(
+                        '날씨 정보를 불러오지 못했어요.',
+                        style: TextStyle(fontSize: 16, color: kTextPrimary),
+                      ),
+                      const SizedBox(height: 16),
+                      CupertinoButton(
+                        color: kTextPrimary,
+                        borderRadius: BorderRadius.circular(20),
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        onPressed: () => fetchData(true),
+                        child: const Text('다시 시도'),
+                      ),
+                    ],
+                  ),
+                );
               } else if (state is Loading) {
                 //return const Center(child: CupertinoActivityIndicator()); // iphone style
                 return const Column(
@@ -171,21 +194,22 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                 return Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                      image: DecorationImage(
-                          colorFilter: ColorFilter.mode(
-                              Colors.black12.withOpacity(0.5), BlendMode.dstATop),
-                          image: const AssetImage('assets/images/background.jpg'),
-                          fit: BoxFit.cover)),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: getPastelGradient(viewModel.curTemperature),
+                    ),
+                  ),
                   child: CustomScrollView(
                         slivers: [
                           SliverAppBar(
                             backgroundColor: Colors.transparent,
                             elevation: 0,
-                            pinned: true,
+                            pinned: false,
                             stretch: true,
                             centerTitle: false,
-                            toolbarHeight: 100.0,
-                            expandedHeight: 300.0,
+                            toolbarHeight: 60.0,
+                            expandedHeight: 340.0,
                             flexibleSpace: FlexibleSpaceBar(
                               background: TodayWidget(
                                 img: viewModel.weatherImage,
@@ -193,6 +217,8 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                                 now: viewModel.curTemperature,
                                 min: viewModel.minTemperature,
                                 max: viewModel.maxTemperature,
+                                condition: viewModel.weatherCondition,
+                                yesterday: viewModel.yesterdayTemperature,
                               ),
                             ),
                           ),
@@ -203,9 +229,10 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                             stretch: false,
                             pinned: false,
                             flexibleSpace: Container(
-                              decoration: const BoxDecoration(
-                                color: Colors.black12,
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                              decoration: BoxDecoration(
+                                color: kCardColor,
+                                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                border: Border.all(color: kCardBorder),
                               ),
                               margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                               padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
@@ -214,7 +241,7 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                                   Text(
                                     '${getToday()} 시간 별 예보',
                                     style: const TextStyle(
-                                        color: Colors.black54, fontSize: 12),
+                                        color: kTextSecondary, fontSize: 12),
                                   ),
                                   SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
@@ -233,45 +260,51 @@ class _WeatherDetailWidgetState extends State<WeatherDetailWidget> with WidgetsB
                               ),
                             ),
                           ),
-                          SliverAppBar(
-                              toolbarHeight: 30,
-                              backgroundColor: Colors.transparent,
-                              flexibleSpace: AdWidget(
-                                ad: banner!,
-                              ),
+                          SliverToBoxAdapter(
+                            child: OutfitWidget(
+                                temp: viewModel.curTemperature),
                           ),
                           SliverAppBar(
-                            pinned: true,
-                            toolbarHeight: 10,
-                            backgroundColor: Colors.amber,
-                            flexibleSpace: Container(
-                              margin: const EdgeInsets.all(0),
-                              padding: const EdgeInsets.all(0),
-                              child: const Row(
+                            toolbarHeight: 30,
+                            backgroundColor: Colors.transparent,
+                            flexibleSpace: AdWidget(
+                              ad: banner!,
+                            ),
+                          ),
+                          SliverToBoxAdapter(
+                            child: Container(
+                              margin: const EdgeInsets.only(top: 10, bottom: 20),
+                              decoration: BoxDecoration(
+                                color: kCardColor,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: kCardBorder),
+                              ),
+                              child: Column(
                                 children: [
-                                  Text("날짜"),
-                                  Text("최고"),
-                                  Text("최저"),
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                                    alignment: Alignment.centerLeft,
+                                    child: const Text(
+                                      '주간 예보',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: kTextSecondary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  for (var item in viewModel.itemByDay)
+                                    ListitemByDay(
+                                      title: item.title,
+                                      img: item.weatherImage,
+                                      min: item.minTemperature,
+                                      max: item.maxTemperature,
+                                    ),
+                                  const SizedBox(height: 8),
                                 ],
                               ),
-                            )
+                            ),
                           ),
-                          SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              return Padding(
-                                  padding: const EdgeInsets.only(bottom: 7),
-                                  child: ListitemByDay(
-                                      title: viewModel.itemByDay[index].title,
-                                      img : viewModel.itemByDay[index].weatherImage,
-                                      min : viewModel.itemByDay[index].minTemperature,
-                                      max : viewModel.itemByDay[index].maxTemperature
-                                  )
-                              );
-                            },
-                            childCount: viewModel.itemByDay.length,
-                          )),
-
                         ],
                       ),
 

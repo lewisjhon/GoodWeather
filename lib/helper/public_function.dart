@@ -83,3 +83,107 @@ String getWeatherIconByText(String text) {
       return 'assets/images/cloudy_day.svg';
   }
 }
+
+/// KMA 코드(SKY + PTY)를 한 줄짜리 한글 날씨 상태로 바꿔 준다.
+/// 강수(PTY)가 있으면 강수 표현을 우선하고, 없으면 하늘상태(SKY)를 쓴다.
+String getWeatherConditionText(String skyCode, String rainCode) {
+  switch (rainCode) {
+    case '1':
+      return '비';
+    case '2':
+      return '비/눈';
+    case '3':
+      return '눈';
+    case '4':
+      return '소나기';
+  }
+  switch (skyCode) {
+    case '1':
+      return '맑음';
+    case '3':
+      return '구름많음';
+    case '4':
+      return '흐림';
+    default:
+      return '구름많음';
+  }
+}
+
+/// 오늘 같은 시각 기온([today])을 어제 같은 시각([yesterday])과 비교한
+/// 친근한 한글 문구. 어제 데이터가 없으면(null) 빈 문자열을 돌려줘
+/// UI 에서 비교 줄을 숨길 수 있게 한다.
+String getYesterdayComparisonText(int today, int? yesterday) {
+  if (yesterday == null) return '';
+  final diff = today - yesterday;
+  if (diff == 0) return '어제와 기온이 비슷해요';
+  if (diff > 0) return '어제보다 $diff° 높아요';
+  return '어제보다 ${-diff}° 낮아요';
+}
+
+/// 기온대별 옷차림 추천 한 건. 화면에 그대로 뿌릴 수 있도록
+/// 이모지 · 한 줄 요약 · 추천 의상 목록을 함께 담는다.
+class OutfitRecommendation {
+  final String emoji;
+  final String summary;
+  final String items;
+
+  const OutfitRecommendation({
+    required this.emoji,
+    required this.summary,
+    required this.items,
+  });
+}
+
+/// 현재 기온([temp], °C)에 맞는 옷차림을 돌려준다.
+/// 기상청/생활기상 기준의 기온별 옷차림 구간을 따른다.
+OutfitRecommendation getOutfitRecommendation(int temp) {
+  if (temp >= 28) {
+    return const OutfitRecommendation(
+      emoji: '🩳',
+      summary: '많이 더워요. 가볍게 입으세요',
+      items: '민소매 · 반팔 · 반바지 · 원피스',
+    );
+  } else if (temp >= 23) {
+    return const OutfitRecommendation(
+      emoji: '👕',
+      summary: '따뜻해요. 얇게 입기 좋아요',
+      items: '반팔 · 얇은 셔츠 · 면바지 · 반바지',
+    );
+  } else if (temp >= 20) {
+    return const OutfitRecommendation(
+      emoji: '🧥',
+      summary: '활동하기 좋은 날씨예요',
+      items: '얇은 가디건 · 긴팔티 · 면바지 · 청바지',
+    );
+  } else if (temp >= 17) {
+    return const OutfitRecommendation(
+      emoji: '👚',
+      summary: '선선해요. 겉옷을 챙기세요',
+      items: '얇은 니트 · 맨투맨 · 가디건 · 청바지',
+    );
+  } else if (temp >= 12) {
+    return const OutfitRecommendation(
+      emoji: '🧥',
+      summary: '쌀쌀해요. 겉옷이 필요해요',
+      items: '자켓 · 가디건 · 야상 · 청바지',
+    );
+  } else if (temp >= 9) {
+    return const OutfitRecommendation(
+      emoji: '🧣',
+      summary: '꽤 쌀쌀해요. 따뜻하게 입으세요',
+      items: '트렌치코트 · 야상 · 니트 · 스타킹',
+    );
+  } else if (temp >= 5) {
+    return const OutfitRecommendation(
+      emoji: '🧥',
+      summary: '추워요. 두툼하게 입으세요',
+      items: '코트 · 가죽자켓 · 히트텍 · 니트',
+    );
+  } else {
+    return const OutfitRecommendation(
+      emoji: '🧤',
+      summary: '많이 추워요. 단단히 챙기세요',
+      items: '패딩 · 두꺼운 코트 · 목도리 · 기모제품',
+    );
+  }
+}

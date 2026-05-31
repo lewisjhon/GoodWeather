@@ -56,6 +56,28 @@ class WeatherRepository {
     }
   }
 
+  /// 어제 기온 비교용 단기예보.
+  ///
+  /// `getVilageFcst` 는 발표 시각(base_time) 이후의 예보만 주므로, 어제 하루를
+  /// 통째로 담으려면 그제(이틀 전) 23시 발표분을 받아온다. 그제 23시 발표 →
+  /// 어제 00시부터 오늘까지 커버되므로 어제 같은 시각 기온을 뽑아 쓸 수 있다.
+  /// KMA 가 오래된 base_date 를 더 이상 서빙하지 않아 NO_DATA 가 오면 items 가
+  /// 비고, mapper 가 비교 문구를 자동으로 숨긴다.
+  Future<ResponseShort> fetchWeatherYesterday() async {
+    var url =
+        '$urlShort?serviceKey=$apikey&numOfRows=1000&pageNo=1&base_date=${getYYYYMMDD(addDay: -2)}&base_time=2300&nx=58&ny=125&dataType=JSON';
+
+    final response = await http.get(Uri.parse(url));
+
+    Logger().d(url);
+
+    if (response.statusCode == 200) {
+      return ResponseShort.fromJson(jsonDecode(response.body)['response']);
+    } else {
+      throw Exception('Failed to load yesterday weather');
+    }
+  }
+
   Future<ResponseShort> fetchWeatherShort() async {
     DateTime now = DateTime.now();
 

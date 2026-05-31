@@ -34,9 +34,9 @@ change, since data is transformed across all of them:
 
 ```
 WeatherRepository (lib/repository/api/k_weather.dart)
-  → 3 HTTP calls to KMA → ResponseShort / ResponseMid (lib/model/domain_model.dart)
+  → 4 HTTP calls to KMA → ResponseShort / ResponseMid (lib/model/domain_model.dart)
 WeatherCubit (lib/business/weather_cubit.dart)
-  → orchestrates the 3 fetches, emits WeatherState
+  → orchestrates the fetches, emits WeatherState
 mapper.dart (lib/business/mapper.dart)
   → mapResponse() converts domain models → WeatherViewModel (lib/model/view_model.dart)
 WeatherDetailWidget (lib/screen/weather_detail.dart)
@@ -49,9 +49,9 @@ WeatherDetailWidget (lib/screen/weather_detail.dart)
 `Empty → Loading → Loaded | Error`. The cubit emits `Loaded(weather: [WeatherViewModel])` —
 note `weather` is a `List<Object>`, so the UI casts `state.weather[0] as WeatherViewModel`.
 
-### The three KMA API calls (all in `WeatherRepository`)
+### The KMA API calls (all in `WeatherRepository`)
 
-The forecast is stitched together from three separate endpoints because no single KMA
+The forecast is stitched together from separate endpoints because no single KMA
 endpoint covers the full 10-day range:
 
 - `fetchWeatherShort()` — `getVilageFcst` (단기예보), today → 3 days, hourly. Returns
@@ -59,11 +59,17 @@ endpoint covers the full 10-day range:
   `fcstDate`, and `fcstTime`. Values are extracted by filtering this list.
 - `fetchWeatherMidTemp()` — `getMidTa` (중기기온), days 4–10, min/max temps (`taMinN`/`taMaxN`).
 - `fetchWeatherMidSky()` — `getMidLandFcst` (중기육상), days 4–10, sky text (`wfNAm` etc.).
+- `fetchWeatherYesterday()` — `getVilageFcst` pinned to **two days ago** + `base_time=2300`,
+  so the forecast window covers all of yesterday. Used only to read yesterday's temperature
+  at the current hour for the "어제보다 N° 높아요/낮아요" comparison. This is best-effort:
+  KMA may return NO_DATA for an old `base_date`, in which case the comparison is silently
+  hidden. The cubit wraps this call in its own try/catch so a failure never blocks the load.
 
-`mapResponse(short, mid, midSky)` merges them: days 0–2 come from the short list
+`mapResponse(short, mid, midSky, {yesterday})` merges them: days 0–2 come from the short list
 (via `CreateDayItemFromList` filtering `category == "TMP"`), days 3–10 come from the mid
 responses (`CreateDayItem` reading the `taMinN`/`wfN` fields). The hourly strip iterates a
-hardcoded 24-entry `timeList` ('0000'..'2300').
+hardcoded 24-entry `timeList` ('0000'..'2300'). Yesterday's temp is pulled via `_safeShortTemp`
+(returns null instead of throwing when the row is missing).
 
 ### Caller-controlled coordinates and region are hardcoded
 
@@ -90,6 +96,29 @@ Icons are SVGs in `assets/images/`. Two resolvers in `lib/helper/public_function
   string key (e.g. `'10'`, `'31'`) and switches to an asset path. Used for short-term data.
 - `getWeatherIconByText(text)` — maps Korean sky text ('맑음'/'구름많음'/'흐림') to an asset.
   Used for mid-term data which only provides text.
+
+### Pastel theme, outfit recommendation & "vs yesterday" UX
+
+The UI mimics the iOS stock Weather app but in soft pastel tones, and adds two
+Korean-context features. The pieces:
+
+- `lib/helper/app_theme.dart` — central color palette. `getPastelGradient(temp)` picks a
+  soft top→bottom gradient by temperature band (coral/peach when hot → mint → sky → lavender
+  when cold); the screen's root `Container` uses it as the background (the old
+  `background.jpg` image is no longer used). `kTextPrimary`/`kTextSecondary`/`kCardColor`/
+  `kCardBorder` are the shared text + translucent-card colors — **use these, don't hardcode
+  `Colors.black12` etc.**
+- Outfit recommendation — `getOutfitRecommendation(temp)` in `public_function.dart` returns an
+  `OutfitRecommendation` (emoji + one-line summary + item list) using the standard Korean
+  temperature-band clothing guide. Rendered by `lib/widget/outfit_widget.dart` (a `SliverToBoxAdapter`
+  card between the hourly strip and the daily list).
+- "어제보다" comparison — `getYesterdayComparisonText(today, yesterday)` builds the friendly
+  diff string (empty when `yesterday` is null, so the line hides itself). Shown in `TodayWidget`.
+- `getWeatherConditionText(skyCode, rainCode)` — one-line Korean condition (맑음/흐림/비…) shown
+  under the big current temperature, derived from the same SKY/PTY codes as the icon.
+
+`WeatherViewModel` carries the extra `weatherCondition` (String) and `yesterdayTemperature`
+(nullable `int?`) fields that drive these.
 
 ### Date helpers
 
@@ -123,4 +152,3 @@ Ad unit IDs live in `lib/screen/weather_detail.dart` (`UNIT_ID` map) and switch 
   more secrets this way; if asked to fix, move it out of source.
 - Android manifest has a typo permission `GOREGROUND_SERVICE` (intended `FOREGROUND_SERVICE`).
 - Android package id is still the template default `com.example.weather`.
-- Error states render a bare `Text(state.message)` with no styling/retry.
