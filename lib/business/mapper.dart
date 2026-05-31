@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:weather/helper/public_function.dart';
 import 'package:weather/model/domain_model.dart';
+import 'package:weather/model/region.dart';
 import 'package:weather/model/view_model.dart';
 
 WeatherByDayViewModel CreateDayItem(String title, int min, int max, String img,
@@ -40,7 +41,7 @@ WeatherByTimeViewModel CreateTimeItem(int time, String img, int temp) {
 
 WeatherViewModel mapResponse(
     ResponseShort resShort, ResponseMid resMid, ResponseMid resMidSky,
-    {ResponseShort? yesterday}) {
+    {required Region region, ResponseShort? yesterday}) {
   //category
   //TMP : 온도(°C)
   //SKY : 하늘상태(맑음:1/구름많음:3/흐림:4)
@@ -138,7 +139,7 @@ WeatherViewModel mapResponse(
     curTemperature: int.parse(curTemp.first.fcstValue),
     minTemperature: int.parse(todayTmpItems.first.fcstValue),
     maxTemperature: int.parse(todayTmpItems.last.fcstValue),
-    region: "서울시 구로구",
+    region: region.displayName,
     weatherDesc: "오늘 날씨는 전반적으로 포근하고 건조하겠습니다.",
     weatherCondition: getWeatherConditionText(skyCode, rainCode),
     weatherImage: getWeatherIcon(skyCode, rainCode),

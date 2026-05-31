@@ -1,35 +1,9 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:weather/repository/api/k_weather.dart';
-import 'package:weather/business/weather_cubit.dart';
-import 'package:weather/screen/weather_detail.dart';
+import 'package:weather/screen/weather_home.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
-  runApp(const MyApp());
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => WeatherCubit(repository: WeatherRepository()),
-      child: const WeatherDetailWidget(),
-    );
-  }
+  runApp(const WeatherHomeWidget());
 }

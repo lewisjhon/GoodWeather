@@ -33,15 +33,38 @@ single screen — there is no routing/navigation. Read these layers together to 
 change, since data is transformed across all of them:
 
 ```
+WeatherHomeWidget (lib/screen/weather_home.dart)  ← app root (CupertinoApp)
+  → resolves GPS → Region, owns the PageView + one WeatherCubit per location
 WeatherRepository (lib/repository/api/k_weather.dart)
-  → 4 HTTP calls to KMA → ResponseShort / ResponseMid (lib/model/domain_model.dart)
+  → 4 HTTP calls to KMA (parameterized by nx/ny + regId) → ResponseShort / ResponseMid
 WeatherCubit (lib/business/weather_cubit.dart)
-  → orchestrates the fetches, emits WeatherState
+  → getWeather(region): orchestrates the fetches, emits WeatherState
 mapper.dart (lib/business/mapper.dart)
-  → mapResponse() converts domain models → WeatherViewModel (lib/model/view_model.dart)
+  → mapResponse(..., region:) converts domain models → WeatherViewModel (lib/model/view_model.dart)
 WeatherDetailWidget (lib/screen/weather_detail.dart)
-  → BlocBuilder renders the single screen + widgets in lib/widget/
+  → one page per location; BlocBuilder renders the screen + widgets in lib/widget/
 ```
+
+### Multi-location (GPS + saved regions)
+
+`WeatherHomeWidget` is the app root and holds a `PageView` of locations: page 0 is the
+**GPS current location**, the rest are user-added regions persisted via `LocationStore`
+(`lib/business/location_store.dart`, JSON in `SharedPreferences`). Swiping between pages is
+iOS-Weather-style; a bottom bar shows page dots (📍 for the current-location page) + a list
+button that opens `RegionSearchSheet` to add/remove regions.
+
+A `Region` (`lib/model/region.dart`) bundles everything the KMA APIs need: short-term grid
+`nx`/`ny`, mid-term `midLandRegId` + `midTempRegId`, plus `lat`/`lon` and an `isCurrent` flag.
+The host keeps **one `WeatherCubit` per `Region.key`** in a map (`_cubitFor`), created lazily
+and provided to each page via `BlocProvider.value`, so swiping back to a page keeps its data.
+
+- **GPS → grid**: `convertGpsToGrid(lat, lon)` in `lib/helper/grid_converter.dart` ports KMA's
+  Lambert Conformal Conic formula (don't touch the projection constants).
+- **GPS → mid-term regId**: those codes can't be derived from coordinates, so `regionFromGps`
+  (`lib/helper/regions.dart`) snaps to the **nearest city** in the built-in `kRegions` catalog
+  and borrows its `midLandRegId`/`midTempRegId` + display name (short-term grid stays exact).
+- **Search** filters the same `kRegions` catalog. Adding new cities = add a row there (needs
+  accurate nx/ny + the two regId codes). GPS failure/denial falls back to `kDefaultRegion` (Seoul).
 
 ### State machine
 
@@ -54,40 +77,36 @@ note `weather` is a `List<Object>`, so the UI casts `state.weather[0] as Weather
 The forecast is stitched together from separate endpoints because no single KMA
 endpoint covers the full 10-day range:
 
-- `fetchWeatherShort()` — `getVilageFcst` (단기예보), today → 3 days, hourly. Returns
+All four take location params (`nx`/`ny` or `regId`) — no more hardcoded coordinates:
+
+- `fetchWeatherShort({nx, ny})` — `getVilageFcst` (단기예보), today → 3 days, hourly. Returns
   `ResponseShort` with a flat list of `ItemShort` rows keyed by `category` (TMP/SKY/PTY/REH),
   `fcstDate`, and `fcstTime`. Values are extracted by filtering this list.
-- `fetchWeatherMidTemp()` — `getMidTa` (중기기온), days 4–10, min/max temps (`taMinN`/`taMaxN`).
-- `fetchWeatherMidSky()` — `getMidLandFcst` (중기육상), days 4–10, sky text (`wfNAm` etc.).
-- `fetchWeatherYesterday()` — `getVilageFcst` pinned to **two days ago** + `base_time=2300`,
+- `fetchWeatherMidTemp({regId})` — `getMidTa` (중기기온), days 4–10, min/max temps (`taMinN`/`taMaxN`).
+- `fetchWeatherMidSky({regId})` — `getMidLandFcst` (중기육상), days 4–10, sky text (`wfNAm` etc.).
+- `fetchWeatherYesterday({nx, ny})` — `getVilageFcst` pinned to **two days ago** + `base_time=2300`,
   so the forecast window covers all of yesterday. Used only to read yesterday's temperature
   at the current hour for the "어제보다 N° 높아요/낮아요" comparison. This is best-effort:
   KMA may return NO_DATA for an old `base_date`, in which case the comparison is silently
   hidden. The cubit wraps this call in its own try/catch so a failure never blocks the load.
 
-`mapResponse(short, mid, midSky, {yesterday})` merges them: days 0–2 come from the short list
-(via `CreateDayItemFromList` filtering `category == "TMP"`), days 3–10 come from the mid
-responses (`CreateDayItem` reading the `taMinN`/`wfN` fields). The hourly strip iterates a
-hardcoded 24-entry `timeList` ('0000'..'2300'). Yesterday's temp is pulled via `_safeShortTemp`
-(returns null instead of throwing when the row is missing).
+`mapResponse(short, mid, midSky, {required region, yesterday})` merges them: days 0–2 come from
+the short list (via `CreateDayItemFromList` filtering `category == "TMP"`), days 3–10 come from
+the mid responses (`CreateDayItem` reading the `taMinN`/`wfN` fields). The hourly strip iterates a
+hardcoded 24-entry `timeList` ('0000'..'2300'). `region.displayName` becomes the `WeatherViewModel`
+region label; yesterday's temp is pulled via `_safeShortTemp` (returns null instead of throwing
+when the row is missing).
 
-### Caller-controlled coordinates and region are hardcoded
+### Fetch throttling (per region, in the cubit)
 
-Several values in `mapResponse` and the repository are **fixed constants, not derived from
-GPS** — be aware when "the location is wrong":
-- `nx=58&ny=125` and `regId=11B10101` / `11B00000` are hardcoded (Seoul / 서울시 구로구).
-- `region` string and `weatherDesc` in the returned `WeatherViewModel` are literal strings.
-- GPS (`getLocation()` in weather_detail.dart) is fetched and logged but **not yet wired into
-  the API requests**.
-
-### Fetch throttling
-
-To stay within KMA rate limits the app fetches **at most once per clock hour**. `fetchWeatherMidTemp()`
-writes the current hour to `SharedPreferences['lastReqHour']`; `fetchData(isForce)` in the
-screen skips the fetch if `lastReqHour == current hour` unless forced. Forced fetches happen
-on `initState`, on app resume (`didChangeAppLifecycleState`), and on pull-to-refresh
-(`RefreshIndicator`). KMA `getVilageFcst` only publishes 8 base times/day (02:20, 05:20, …,
-23:20); `fetchWeatherShort` currently pins `base_date` to yesterday + `base_time=2300`.
+To stay within KMA rate limits each location fetches **at most once per clock hour**.
+`WeatherCubit.getWeather(region, {force})` checks `SharedPreferences['lastReqHour_<region.key>']`
+and skips when it equals the current hour *and* state is already `Loaded`, unless `force` is set.
+Forced fetches happen on pull-to-refresh (`RefreshIndicator` in each page). Non-forced refreshes
+happen on cubit creation (first time a page is shown) and on app resume (the host re-calls
+`getWeather` for the visible page; the throttle decides). KMA `getVilageFcst` only publishes 8
+base times/day (02:20, 05:20, …, 23:20); `fetchWeatherShort` pins `base_date` to yesterday +
+`base_time=2300`.
 
 ### Weather icon mapping
 
@@ -132,8 +151,9 @@ All date/time formatting lives in `lib/helper/public_function.dart` (`getYYYYMMD
 - **Logging**: uses the `logger` package — `Logger().d(...)`. There are also stray
   `print()` calls in lifecycle handlers; prefer `Logger` for new code.
 - **UI framework**: Cupertino (`CupertinoApp`/`CupertinoPageScaffold`), not MaterialApp,
-  even though Material widgets (e.g. `RefreshIndicator`, `CircularProgressIndicator`) are
-  mixed in. The single screen is built from stacked `SliverAppBar`s in a `CustomScrollView`.
+  even though Material widgets (e.g. `RefreshIndicator`, `showModalBottomSheet`,
+  `CircularProgressIndicator`) are mixed in — `GlobalMaterialLocalizations` is registered so
+  these work. Each location page is built from stacked `SliverAppBar`s in a `CustomScrollView`.
 - **Custom font**: "ONE Mobile Title" (TTFs in `assets/fonts/`) is registered in pubspec.
 - **Naming**: factory helpers in mapper.dart use PascalCase (`CreateDayItem`) — non-standard
   for Dart but consistent within the file; follow the local pattern when editing it.
@@ -143,12 +163,14 @@ All date/time formatting lives in `lib/helper/public_function.dart` (`getYYYYMMD
 Ad unit IDs live in `lib/screen/weather_detail.dart` (`UNIT_ID` map) and switch on
 `kReleaseMode`: Google's public test IDs in debug, real IDs in release. The Android AdMob
 **app** ID is in `android/app/src/main/AndroidManifest.xml` (`com.google.android.gms.ads.APPLICATION_ID`).
-`MobileAds.instance.initialize()` is called in `main()`. A single banner is loaded in
-`initState` and placed inside a `SliverAppBar`.
+`MobileAds.instance.initialize()` is called in `main()`. Each location page loads its own
+banner in `initState` (disposed in `dispose`) and places it inside a `SliverAppBar`.
 
 ## Known rough edges (don't treat as intentional design)
 
 - The KMA `apikey` is **committed as a plaintext constant** in `k_weather.dart`. Don't add
   more secrets this way; if asked to fix, move it out of source.
-- Android manifest has a typo permission `GOREGROUND_SERVICE` (intended `FOREGROUND_SERVICE`).
 - Android package id is still the template default `com.example.weather`.
+- `kRegions` mid-term `regId` codes (esp. 세종) are best-effort; verify against KMA's region
+  code table if a city's day-4–10 forecast looks wrong. Reverse geocoding for the GPS page's
+  display name is approximated by nearest-city, not a real address lookup.
