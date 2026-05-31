@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:weather/helper/public_function.dart';
 import 'package:weather/model/domain_model.dart';
+import 'package:weather/model/region.dart';
 import 'package:weather/model/view_model.dart';
 
 WeatherByDayViewModel CreateDayItem(String title, int min, int max, String img,
@@ -39,7 +40,8 @@ WeatherByTimeViewModel CreateTimeItem(int time, String img, int temp) {
 }
 
 WeatherViewModel mapResponse(
-    ResponseShort resShort, ResponseMid resMid, ResponseMid resMidSky) {
+    ResponseShort resShort, ResponseMid resMid, ResponseMid resMidSky,
+    {required Region region, ResponseShort? yesterday}) {
   //category
   //TMP : 온도(°C)
   //SKY : 하늘상태(맑음:1/구름많음:3/흐림:4)
@@ -88,6 +90,13 @@ WeatherViewModel mapResponse(
   var rainCode =
       getShortItemValue(resShort.body.items, 'PTY', getYYYYMMDD(), getHH00());
 
+  // 어제 같은 시각 기온. 그제 23시 발표분에서 뽑되, 데이터가 없으면 null.
+  int? yesterdayTemp;
+  if (yesterday != null) {
+    yesterdayTemp = _safeShortTemp(
+        yesterday.body.items, getYYYYMMDD(addDay: -1), getHH00());
+  }
+
   List<WeatherByTimeViewModel> tmpItemByTime = [];
   List<String> timeList = [
     '0000',
@@ -130,12 +139,24 @@ WeatherViewModel mapResponse(
     curTemperature: int.parse(curTemp.first.fcstValue),
     minTemperature: int.parse(todayTmpItems.first.fcstValue),
     maxTemperature: int.parse(todayTmpItems.last.fcstValue),
-    region: "서울시 구로구",
+    region: region.displayName,
     weatherDesc: "오늘 날씨는 전반적으로 포근하고 건조하겠습니다.",
+    weatherCondition: getWeatherConditionText(skyCode, rainCode),
     weatherImage: getWeatherIcon(skyCode, rainCode),
+    yesterdayTemperature: yesterdayTemp,
     itemByDay: tmpItemByDay,
     itemByTime: tmpItemByTime,
   );
+}
+
+/// 단기예보 목록에서 특정 날짜·시각의 기온(TMP)을 안전하게 꺼낸다.
+/// 해당 행이 없으면(빈 응답 등) 예외 대신 null 을 돌려준다.
+int? _safeShortTemp(List<ItemShort> list, String date, String time) {
+  try {
+    return int.parse(getShortItemValue(list, 'TMP', date, time));
+  } catch (_) {
+    return null;
+  }
 }
 
 String getShortItemValue(

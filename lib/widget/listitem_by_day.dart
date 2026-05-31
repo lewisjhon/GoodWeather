@@ -1,48 +1,53 @@
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:weather/helper/public_function.dart';
 import 'package:flutter/material.dart';
+import 'package:weather/helper/app_theme.dart';
 
+/// 주간 예보 한 줄: 요일/날짜 · 날씨 아이콘 · 최저/최고 기온.
 class ListitemByDay extends StatelessWidget {
   final String title;
   final String img;
   final int min;
   final int max;
 
-  const ListitemByDay(
-      {required this.title,
-      required this.img,
-      required this.min,
-      required this.max,
-      super.key});
+  const ListitemByDay({
+    required this.title,
+    required this.img,
+    required this.min,
+    required this.max,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 50,
-      margin: const EdgeInsets.all(2),
-      padding: const EdgeInsets.all(10),
-      decoration: const BoxDecoration(
-        border: Border(
-            bottom: BorderSide(
-          color: Colors.black12,
-        )),
-      ),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-        Container(
-          child: Text(title),
-        ),
-        Container(
-          child: SvgPicture.asset(
-            img,
-            height: 100,
+      height: 52,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 90,
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 15, color: kTextPrimary),
+            ),
           ),
-        ),
-        Container(
-          child: Text('$min°/$max°'),
-        )
-      ]),
+          SvgPicture.asset(img, height: 30),
+          const Spacer(),
+          Text(
+            '$min°',
+            style: const TextStyle(fontSize: 15, color: kTextSecondary),
+          ),
+          const SizedBox(width: 14),
+          Text(
+            '$max°',
+            style: const TextStyle(
+              fontSize: 15,
+              color: kTextPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
