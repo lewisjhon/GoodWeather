@@ -44,13 +44,13 @@ class _WeatherHomeWidgetState extends State<WeatherHomeWidget>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     _init();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     for (final c in _cubits.values) {
       c.close();
     }
@@ -135,7 +135,7 @@ class _WeatherHomeWidgetState extends State<WeatherHomeWidget>
   }
 
   void _goToPage(int index) {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_pageController.hasClients) {
         _pageController.animateToPage(
           index,

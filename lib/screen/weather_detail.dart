@@ -217,10 +217,10 @@ class _LoadingView extends StatelessWidget {
           colors: getPastelGradient(15),
         ),
       ),
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: const [
             CircularProgressIndicator(color: kTextPrimary),
             SizedBox(height: 20),
             Text('날씨 정보를 불러오는 중 입니다.',

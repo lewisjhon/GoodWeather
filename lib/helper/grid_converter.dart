@@ -23,11 +23,11 @@ GridPoint convertGpsToGrid(double lat, double lon) {
 
   const double degrad = pi / 180.0;
 
-  final double reGrid = re / grid;
-  final double slat1Rad = slat1 * degrad;
-  final double slat2Rad = slat2 * degrad;
-  final double olonRad = olon * degrad;
-  final double olatRad = olat * degrad;
+  const double reGrid = re / grid;
+  const double slat1Rad = slat1 * degrad;
+  const double slat2Rad = slat2 * degrad;
+  const double olonRad = olon * degrad;
+  const double olatRad = olat * degrad;
 
   double sn = tan(pi * 0.25 + slat2Rad * 0.5) / tan(pi * 0.25 + slat1Rad * 0.5);
   sn = log(cos(slat1Rad) / cos(slat2Rad)) / log(sn);
